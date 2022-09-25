@@ -45,7 +45,7 @@ ___TEMPLATE_PARAMETERS___
     ],
     "simpleValueType": true,
     "defaultValue": "page_view",
-    "help": "\u003cb\u003ePageView\u003c/b\u003e - stores the siteID, ranMID, ranEAID, and ranSiteID URL parameter inside the refersion_ cookies\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to the Rakuten"
+    "help": "\u003cb\u003ePageView\u003c/b\u003e - stores the siteID, ranMID, ranEAID, and ranSiteID URL parameter inside the rakuten_site_id, rakuten_time_entered, rakuten_ran_mid, rakuten_ran_eaid, rakuten_ran_site_id cookies\u003cbr\u003e\u003cbr\u003e\n\u003cb\u003eConversion\u003c/b\u003e - Send request with data about the conversion to the Rakuten"
   },
   {
     "type": "GROUP",
