@@ -1,5 +1,7 @@
 homepage: "https://stape.io/"
 versions:
+  - sha: bc3ef477cb3fc0ca8d916001868312ef4cc3166d
+    changeNotes: Added fallback for site id.
   - sha: 570e9421198fb4520e2ed3ab83f63c98e3193aa8
     changeNotes: Fix permissions
   - sha: 26985535c165dee99b0f4f2c6aed4ec05ca4f15a

@@ -26,6 +26,7 @@ if (data.type === 'page_view') {
     const ranMidValue = parseUrl(url).searchParams.ranMID;
     const ranEaidValue = parseUrl(url).searchParams.ranEAID;
     const ranSiteIdValue = parseUrl(url).searchParams.ranSiteID;
+    const rakutenSiteIdValue = siteIdValue || ranSiteIdValue;
 
     const options = {
       domain: 'auto',
@@ -35,8 +36,13 @@ if (data.type === 'page_view') {
       'max-age': 63072000, // 2 years
     };
 
-    if (siteIdValue) {
-      setCookie('rakuten_site_id', makeString(siteIdValue), options, false);
+    if (rakutenSiteIdValue) {
+      setCookie(
+        'rakuten_site_id',
+        makeString(rakutenSiteIdValue),
+        options,
+        false
+      );
       setCookie(
         'rakuten_time_entered',
         makeString(Math.round(getTimestampMillis() / 1000)),
