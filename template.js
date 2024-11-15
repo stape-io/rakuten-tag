@@ -66,19 +66,15 @@ if (data.type === 'page_view') {
 
   data.gtmOnSuccess();
 } else {
-  const containerKey = data.containerKey.split(':');
-  const containerZone = containerKey[0];
-  const containerIdentifier = containerKey[1];
-  const containerApiKey = containerKey[2];
-  const containerDefaultDomainEnd = containerKey[3] || 'io';
+  const containerIdentifier = getRequestHeader('x-gtm-identifier');
+  const defaultDomain = getRequestHeader('x-gtm-default-domain');
+  const containerApiKey = getRequestHeader('x-gtm-api-key');
 
   let requestUrl =
     'https://' +
     enc(containerIdentifier) +
     '.' +
-    enc(containerZone) +
-    '.stape.' +
-    enc(containerDefaultDomainEnd) +
+    enc(defaultDomain) +
     '/stape-api/' +
     enc(containerApiKey) +
     '/v1/rakuten/auth-proxy';
