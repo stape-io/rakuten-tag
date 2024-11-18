@@ -54,18 +54,6 @@ ___TEMPLATE_PARAMETERS___
     "subParams": [
       {
         "type": "TEXT",
-        "name": "containerKey",
-        "displayName": "Stape Container API Key",
-        "simpleValueType": true,
-        "valueValidators": [
-          {
-            "type": "NON_EMPTY"
-          }
-        ],
-        "help": "It can be found in the detailed view of the container inside your \u003ca href\u003d\"https://app.stape.io/container/\" target\u003d\"_blank\"\u003eStape account\u003c/a\u003e.\n\u003cbr\u003e\u003cbr\u003e\nBecause of how Rakuten Affiliate API authentication works, it can\u0027t be fully functional on sGTM. That\u0027s why this tag requires working on \u003ca href\u003d\"https://stape.io/gtm-server-hosting\" target\u003d\"_blank\"\u003eStape hosting\u003c/a\u003e.\n\u003cbr\u003e\nIf it will be possible in the future to use only sGTM for authentication we will update this tag to support any hosting."
-      },
-      {
-        "type": "TEXT",
         "name": "mid",
         "displayName": "Affiliate Merchant ID (MID)",
         "simpleValueType": true,
@@ -256,7 +244,12 @@ if (data.type === 'page_view') {
     };
 
     if (rakutenSiteIdValue) {
-      setCookie('rakuten_site_id', makeString(rakutenSiteIdValue), options, false);
+      setCookie(
+        'rakuten_site_id',
+        makeString(rakutenSiteIdValue),
+        options,
+        false
+      );
       setCookie(
         'rakuten_time_entered',
         makeString(Math.round(getTimestampMillis() / 1000)),
@@ -280,19 +273,15 @@ if (data.type === 'page_view') {
 
   data.gtmOnSuccess();
 } else {
-  const containerKey = data.containerKey.split(':');
-  const containerZone = containerKey[0];
-  const containerIdentifier = containerKey[1];
-  const containerApiKey = containerKey[2];
-  const containerDefaultDomainEnd = containerKey[3] || 'io';
+  const containerIdentifier = getRequestHeader('x-gtm-identifier');
+  const defaultDomain = getRequestHeader('x-gtm-default-domain');
+  const containerApiKey = getRequestHeader('x-gtm-api-key');
 
   let requestUrl =
     'https://' +
     enc(containerIdentifier) +
     '.' +
-    enc(containerZone) +
-    '.stape.' +
-    enc(containerDefaultDomainEnd) +
+    enc(defaultDomain) +
     '/stape-api/' +
     enc(containerApiKey) +
     '/v1/rakuten/auth-proxy';
@@ -461,6 +450,51 @@ ___SERVER_PERMISSIONS___
                   {
                     "type": 1,
                     "string": "referer"
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "headerName"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "x-gtm-identifier"
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "headerName"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "x-gtm-default-domain"
+                  }
+                ]
+              },
+              {
+                "type": 3,
+                "mapKey": [
+                  {
+                    "type": 1,
+                    "string": "headerName"
+                  }
+                ],
+                "mapValue": [
+                  {
+                    "type": 1,
+                    "string": "x-gtm-api-key"
                   }
                 ]
               }
