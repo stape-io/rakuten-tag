@@ -1,22 +1,31 @@
-﻿const sendHttpRequest = require('sendHttpRequest');
-const setCookie = require('setCookie');
-const parseUrl = require('parseUrl');
-const JSON = require('JSON');
-const getRequestHeader = require('getRequestHeader');
+﻿const encodeUriComponent = require('encodeUriComponent');
+const getAllEventData = require('getAllEventData');
+const getContainerVersion = require('getContainerVersion');
 const getCookieValues = require('getCookieValues');
 const getEventData = require('getEventData');
-const getAllEventData = require('getAllEventData');
-const logToConsole = require('logToConsole');
-const getContainerVersion = require('getContainerVersion');
-const makeString = require('makeString');
+const getRequestHeader = require('getRequestHeader');
 const getTimestampMillis = require('getTimestampMillis');
+const getType = require('getType');
+const JSON = require('JSON');
+const logToConsole = require('logToConsole');
+const makeString = require('makeString');
 const makeTableMap = require('makeTableMap');
-const encodeUriComponent = require('encodeUriComponent');
 const Math = require('Math');
+const parseUrl = require('parseUrl');
+const setCookie = require('setCookie');
+const sendHttpRequest = require('sendHttpRequest');
+
+/*==============================================================================
+==============================================================================*/
+
+const eventData = getAllEventData();
+
+if (!isConsentGivenOrNotRequired(data, eventData)) {
+  return data.gtmOnSuccess();
+}
 
 const isLoggingEnabled = determinateIsLoggingEnabled();
 const traceId = getRequestHeader('trace-id');
-const eventData = getAllEventData();
 
 if (data.type === 'page_view') {
   const url = getEventData('page_location') || getRequestHeader('referer');
@@ -33,16 +42,11 @@ if (data.type === 'page_view') {
       path: '/',
       secure: true,
       httpOnly: false,
-      'max-age': 63072000, // 2 years
+      'max-age': 63072000 // 2 years
     };
 
     if (rakutenSiteIdValue) {
-      setCookie(
-        'rakuten_site_id',
-        makeString(rakutenSiteIdValue),
-        options,
-        false
-      );
+      setCookie('rakuten_site_id', makeString(rakutenSiteIdValue), options, false);
       setCookie(
         'rakuten_time_entered',
         makeString(Math.round(getTimestampMillis() / 1000)),
@@ -51,17 +55,10 @@ if (data.type === 'page_view') {
       );
     }
 
-    if (ranMidValue)
-      setCookie('rakuten_ran_mid', makeString(ranMidValue), options, false);
-    if (ranEaidValue)
-      setCookie('rakuten_ran_eaid', makeString(ranEaidValue), options, false);
+    if (ranMidValue) setCookie('rakuten_ran_mid', makeString(ranMidValue), options, false);
+    if (ranEaidValue) setCookie('rakuten_ran_eaid', makeString(ranEaidValue), options, false);
     if (ranSiteIdValue)
-      setCookie(
-        'rakuten_ran_site_id',
-        makeString(ranSiteIdValue),
-        options,
-        false
-      );
+      setCookie('rakuten_ran_site_id', makeString(ranSiteIdValue), options, false);
   }
 
   data.gtmOnSuccess();
@@ -82,7 +79,7 @@ if (data.type === 'page_view') {
   let requestBody = {
     auth: {
       affiliate_key: data.affiliateKey,
-      mid: data.mid,
+      mid: data.mid
     },
     sku_order: {
       siteid: getCookieValues('rakuten_site_id')[0] || '',
@@ -90,11 +87,9 @@ if (data.type === 'page_view') {
       orderid: data.orderId,
       currency: data.currency,
       trans_date: Math.round(getTimestampMillis() / 1000),
-      optional_data: data.optionalData
-        ? makeTableMap(data.optionalData, 'name', 'value')
-        : {},
-      items: data.items ? data.items : getItems(),
-    },
+      optional_data: data.optionalData ? makeTableMap(data.optionalData, 'name', 'value') : {},
+      items: data.items ? data.items : getItems()
+    }
   };
 
   if (isLoggingEnabled) {
@@ -106,7 +101,7 @@ if (data.type === 'page_view') {
         EventName: 'Conversion',
         RequestMethod: 'POST',
         RequestUrl: requestUrl,
-        RequestBody: requestBody,
+        RequestBody: requestBody
       })
     );
   }
@@ -123,7 +118,7 @@ if (data.type === 'page_view') {
             EventName: 'Conversion',
             ResponseStatusCode: statusCode,
             ResponseHeaders: headers,
-            ResponseBody: body,
+            ResponseBody: body
           })
         );
       }
@@ -138,6 +133,10 @@ if (data.type === 'page_view') {
     JSON.stringify(requestBody)
   );
 }
+
+/*==============================================================================
+Vendor related functions
+==============================================================================*/
 
 function getItems() {
   let items = [];
@@ -173,6 +172,22 @@ function getItems() {
   return items;
 }
 
+/*==============================================================================
+Helpers
+==============================================================================*/
+
+function enc(data) {
+  if (['null', 'undefined'].indexOf(getType(data)) !== -1) data = '';
+  return encodeUriComponent(makeString(data));
+}
+
+function isConsentGivenOrNotRequired(data, eventData) {
+  if (data.adStorageConsent !== 'required') return true;
+  if (eventData.consent_state) return !!eventData.consent_state.ad_storage;
+  const xGaGcs = eventData['x-ga-gcs'] || ''; // x-ga-gcs is a string like "G110"
+  return xGaGcs[2] === '1';
+}
+
 function determinateIsLoggingEnabled() {
   const containerVersion = getContainerVersion();
   const isDebug = !!(
@@ -193,9 +208,4 @@ function determinateIsLoggingEnabled() {
   }
 
   return data.logType === 'always';
-}
-
-function enc(data) {
-  data = data || '';
-  return encodeUriComponent(data);
 }
