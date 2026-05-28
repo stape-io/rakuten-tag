@@ -1,6 +1,8 @@
 homepage: 'https://stape.io/'
 documentation: 'https://github.com/stape-io/rakuten-tag'
 versions:
+  - sha: 24fc529d04916e6924e288b052642b24acc58d5a
+    changeNotes: Logging removal.
   - sha: e87f653e99483f81976aa3d78d8b55752f9aff3d
     changeNotes: Added consent section.
   - sha: 9a0909ad868cdcf033d39555d2a4729dd9b93413
